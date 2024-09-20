@@ -12,14 +12,13 @@ The Employee Management System is a web application designed to manage employees
 - PHP
 - HTML/CSS
 - MySQL
-- JavaScript (if applicable)
 
 ## Setup Instructions
 
 ### Prerequisites
-- PHP 7.4 or higher
+- PHP 8
 - MySQL
-- Web server (e.g., Apache, Nginx)
+- Web server Apache
 
 ### Installation
 1. Clone the repository:
