@@ -41,20 +41,17 @@ The Employee Management System is a web application designed to manage employees
 ### Usage
 - **Employee Dashboard**: Accessible by employees to view and update their personal information and performance evaluations.
     ```php:views/backoffice/employee_dashboard.php
-    startLine: 1
-    endLine: 30
+  
     ```
 
 - **Manager Dashboard**: Accessible by managers to search and sort employees, and manage performance evaluations.
     ```php:views/backoffice/manager_dashboard.php
-    startLine: 1
-    endLine: 30
+    
     ```
 
 - **Admin Dashboard**: Accessible by administrators to manage users and departments.
     ```php:views/backoffice/admin_dashboard.php
-    startLine: 1
-    endLine: 30
+    
     ```
 
 ## Directory Structure
