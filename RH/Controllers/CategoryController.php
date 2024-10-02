@@ -1,33 +1,33 @@
 <?php
-require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../models/Category.php';
+require_once '../../config/database.php';
+require_once '../../models/Category.php';
 
-class CategoryController
-{
-    private $db;
-    private $category;
+class CategoryController {
+    private $categoryModel;
 
-    public function __construct()
-    {
+    public function __construct() {
         $database = new Database();
-        $this->db = $database->getConnection();
-        $this->category = new Category($this->db);
+        $db = $database->getConnection();
+        $this->categoryModel = new Category($db);
     }
 
-    public function readAll()
-    {
-        return $this->category->readAll();
+    public function getAllCategories() {
+        return $this->categoryModel->getAllCategories();
     }
 
-    public function create()
-    {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $this->category->name = $_POST['name'];
-            if ($this->category->create()) {
-                echo "Category created successfully.";
-            } else {
-                echo "Failed to create category.";
-            }
-        }
+    public function getCategoryById($id) {
+        return $this->categoryModel->getCategoryById($id);
+    }
+
+    public function createCategory($nom, $departement_id) {
+        return $this->categoryModel->createCategory($nom, $departement_id);
+    }
+
+    public function updateCategory($id, $nom, $departement_id) {
+        return $this->categoryModel->updateCategory($id, $nom, $departement_id);
+    }
+
+    public function deleteCategory($id) {
+        return $this->categoryModel->deleteCategory($id);
     }
 }

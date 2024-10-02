@@ -1,8 +1,8 @@
 <?php
-require_once '../../controllers/CategoryController.php';
+require_once '../../Controllers/CategoryController.php';
 
 $controller = new CategoryController();
-$categories = $controller->readAll();
+$categories = $controller->getAllCategories();
 ?>
 
 <!DOCTYPE html>
@@ -15,15 +15,29 @@ $categories = $controller->readAll();
 
 <body>
     <h1>List of Categories</h1>
-    <?php if ($categories->rowCount() > 0): ?>
-        <ul>
-            <?php while ($row = $categories->fetch(PDO::FETCH_ASSOC)): ?>
-                <li><?php echo htmlspecialchars($row['name']); ?></li>
-            <?php endwhile; ?>
-        </ul>
-    <?php else: ?>
-        <p>No categories found.</p>
-    <?php endif; ?>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Departement ID</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($categories as $category): ?>
+                <tr>
+                    <td><?php echo $category['id']; ?></td>
+                    <td><?php echo $category['nom']; ?></td>
+                    <td><?php echo $category['departement_id']; ?></td>
+                    <td>
+                        <a href="edit_category.php?id=<?php echo $category['id']; ?>">Edit</a>
+                        <a href="delete_category.php?id=<?php echo $category['id']; ?>">Delete</a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
 </body>
 
 </html>

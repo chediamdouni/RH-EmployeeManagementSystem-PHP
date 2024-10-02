@@ -1,9 +1,18 @@
 <?php
-require_once "../../controllers/CategoryController.php";
+require_once '../../Controllers/CategoryController.php';
+require_once '../../Controllers/DepartmentController.php';
 
-$controller = new CategoryController();
+$categoryController = new CategoryController();
+$departmentController = new DepartmentController();
+
+$departments = $departmentController->getAllDepartements();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->create();
+    $nom = $_POST['nom'];
+    $departement_id = $_POST['departement_id'];
+    $categoryController->createCategory($nom, $departement_id);
+    header('Location: list_category.php');
+    exit();
 }
 ?>
 
@@ -16,10 +25,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 
 <body>
-    <h1>Add New Category</h1>
+    <h1>Add Category</h1>
     <form action="add_category.php" method="POST">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="nom" required><br><br>
+
+        <label for="departement_id">Departement:</label>
+        <select id="departement_id" name="departement_id" required>
+            <?php foreach ($departments as $department): ?>
+                <option value="<?php echo $department['id']; ?>"><?php echo $department['nom']; ?></option>
+            <?php endforeach; ?>
+        </select><br><br>
 
         <input type="submit" value="Add Category">
     </form>

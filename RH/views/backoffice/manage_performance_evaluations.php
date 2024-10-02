@@ -1,17 +1,20 @@
 <?php
-session_start();
-require_once '../../middleware/RoleMiddleware.php';
 require_once '../../Controllers/PerformanceController.php';
+require_once '../../Controllers/UserController.php';
+require_once '../../middleware/RoleMiddleware.php';
 
-// Check if the user is a manager
-RoleMiddleware::check(['manager']);
+// Check if the user is an admin and a manager
+RoleMiddleware::check(['admin', 'manager']);
+$performanceController = new PerformanceController();
+$userController = new UserController();
 
-$controller = new PerformanceController();
-$evaluations = $controller->getAllEvaluations();
+$evaluations = $performanceController->getAllEvaluations();
+$users = $userController->getAllUsers();
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Handle form submissions for adding, updating, or deleting evaluations
-    // This part will depend on your specific requirements and implementation
+// Créer un tableau associatif pour les noms des utilisateurs
+$userNames = [];
+foreach ($users as $user) {
+    $userNames[$user['id']] = $user['nom'] . ' ' . $user['prenom'];
 }
 ?>
 
@@ -21,40 +24,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Manage Performance Evaluations</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <h1>Manage Performance Evaluations</h1>
-    <?php if ($evaluations->rowCount() > 0): ?>
-        <table border="1">
-            <thead>
+    <div class="container mt-5">
+        <h1 class="mb-4">Manage Performance Evaluations</h1>
+        <table class="table table-striped">
+            <thead class="thead-dark">
                 <tr>
-                    <th>User ID</th>
-                    <th>Date</th>
+                    <th>User</th>
+                    <th>Date Evaluation</th>
                     <th>Score</th>
-                    <th>Comments</th>
+                    <th>Commentaire General</th>
+                    <th>Critere</th>
+                    <th>Note</th>
+                    <th>Commentaire Critere</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($row = $evaluations->fetch(PDO::FETCH_ASSOC)): ?>
+                <?php foreach ($evaluations as $evaluation): ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($row['user_id']); ?></td>
-                        <td><?php echo htmlspecialchars($row['date']); ?></td>
-                        <td><?php echo htmlspecialchars($row['score']); ?></td>
-                        <td><?php echo htmlspecialchars($row['comments']); ?></td>
+                        <td><?php echo $userNames[$evaluation['user_id']]; ?></td>
+                        <td><?php echo $evaluation['date_evaluation']; ?></td>
+                        <td><?php echo $evaluation['score']; ?></td>
+                        <td><?php echo $evaluation['commentaire_general']; ?></td>
+                        <td><?php echo $evaluation['critere']; ?></td>
+                        <td><?php echo $evaluation['note']; ?></td>
+                        <td><?php echo $evaluation['commentaire_critere']; ?></td>
                         <td>
-                            <a href="edit_evaluation.php?id=<?php echo $row['id']; ?>">Edit</a>
-                            <a href="delete_evaluation.php?id=<?php echo $row['id']; ?>" onclick="return confirm('Are you sure you want to delete this evaluation?');">Delete</a>
+                            <a href="delete_evaluation.php?id=<?php echo $evaluation['id']; ?>" class="btn btn-sm btn-danger">Delete</a>
                         </td>
                     </tr>
-                <?php endwhile; ?>
+                <?php endforeach; ?>
             </tbody>
         </table>
-    <?php else: ?>
-        <p>No performance evaluations found.</p>
-    <?php endif; ?>
-    <a href="manager_dashboard.php">Back to Dashboard</a>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

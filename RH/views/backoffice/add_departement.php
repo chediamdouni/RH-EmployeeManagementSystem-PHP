@@ -1,13 +1,13 @@
 <?php
-require_once '../../controllers/DepartmentController.php';
-require_once '../../controllers/CategoryController.php';
+require_once '../../Controllers/DepartmentController.php';
 
 $controller = new DepartmentController();
-$categoryController = new CategoryController();
-$categories = $categoryController->readAll();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->create();
+    $nom = $_POST['nom'];
+    $controller->createDepartement($nom);
+    header('Location: list_departement.php');
+    exit();
 }
 ?>
 
@@ -16,23 +16,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <head>
     <meta charset="UTF-8">
-    <title>Add Department</title>
+    <title>Add Departement</title>
 </head>
 
 <body>
-    <h1>Add New Department</h1>
+    <h1>Add Departement</h1>
     <form action="add_departement.php" method="POST">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br><br>
-
-        <label for="category_id">Category:</label>
-        <select id="category_id" name="category_id" required>
-            <?php while ($row = $categories->fetch(PDO::FETCH_ASSOC)): ?>
-                <option value="<?php echo $row['id']; ?>"><?php echo htmlspecialchars($row['name']); ?></option>
-            <?php endwhile; ?>
-        </select><br><br>
-
-        <input type="submit" value="Add Department">
+        <label for="nom">Nom:</label>
+        <input type="text" id="nom" name="nom" required><br><br>
+        <input type="submit" value="Add Departement">
     </form>
 </body>
 

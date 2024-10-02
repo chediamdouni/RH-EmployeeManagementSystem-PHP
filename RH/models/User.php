@@ -1,126 +1,64 @@
 <?php
-class User
-{
-    private $conn;
-    private $table_name = "users";
 
-    public $id;
-    public $name;
-    public $email;
-    public $role;
-    public $password;
+class User {
+    private $pdo;
 
-    public function __construct($db)
-    {
-        $this->conn = $db;
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
     }
 
-    public function readAll()
-    {
-        $query = "SELECT * FROM " . $this->table_name;
-        $stmt = $this->conn->prepare($query);
+    public function getAllUsers() {
+        $stmt = $this->pdo->prepare("SELECT * FROM users");
         $stmt->execute();
-        return $stmt;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create()
-    {
-        $query = "INSERT INTO " . $this->table_name . " SET name=:name, email=:email, role=:role, password=:password";
-        $stmt = $this->conn->prepare($query);
-
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->email = htmlspecialchars(strip_tags($this->email));
-        $this->role = htmlspecialchars(strip_tags($this->role));
-        $this->password = password_hash($this->password, PASSWORD_BCRYPT);
-
-        $stmt->bindParam(":name", $this->name);
-        $stmt->bindParam(":email", $this->email);
-        $stmt->bindParam(":role", $this->role);
-        $stmt->bindParam(":password", $this->password);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-
-    public function readOne()
-    {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(1, $this->id);
+    public function getUserById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $id);
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update()
-    {
-        $query = "UPDATE " . $this->table_name . " SET name = :name, email = :email, role = :role WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-
-        $this->name = htmlspecialchars(strip_tags($this->name));
-        $this->email = htmlspecialchars(strip_tags($this->email));
-        $this->role = htmlspecialchars(strip_tags($this->role));
-        $this->id = htmlspecialchars(strip_tags($this->id));
-
-        $stmt->bindParam(':name', $this->name);
-        $stmt->bindParam(':email', $this->email);
-        $stmt->bindParam(':role', $this->role);
-        $stmt->bindParam(':id', $this->id);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-    public function delete()
-    {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = :id";
-        $stmt = $this->conn->prepare($query);
-
-        $this->id = htmlspecialchars(strip_tags($this->id));
-        $stmt->bindParam(':id', $this->id);
-
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
-    }
-
-    public function search($criteria)
-    {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE name LIKE :criteria OR email LIKE :criteria OR role LIKE :criteria";
-        $stmt = $this->conn->prepare($query);
-        $criteria = "%{$criteria}%";
-        $stmt->bindParam(':criteria', $criteria);
-        $stmt->execute();
-        return $stmt;
-    }
-
-    public function sort($column, $order)
-    {
-        $query = "SELECT * FROM " . $this->table_name . " ORDER BY " . $column . " " . $order;
-        $stmt = $this->conn->prepare($query);
-        $stmt->execute();
-        return $stmt;
-    }
-
-    public function findByEmailAndRole($email, $role)
-    {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email AND role = :role LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
+    public function createUser($nom, $prenom, $email, $password, $role, $departement_id, $categorie_id) {
+        $stmt = $this->pdo->prepare("INSERT INTO users (nom, prenom, email, password, role, departement_id, categorie_id) VALUES (:nom, :prenom, :email, :password, :role, :departement_id, :categorie_id)");
+        $stmt->bindParam(':nom', $nom);
+        $stmt->bindParam(':prenom', $prenom);
         $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', password_hash($password, PASSWORD_BCRYPT));
         $stmt->bindParam(':role', $role);
-        $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->bindParam(':departement_id', $departement_id);
+        $stmt->bindParam(':categorie_id', $categorie_id);
+        return $stmt->execute();
     }
 
-    public function findByEmail($email)
-    {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE email = :email LIMIT 0,1";
-        $stmt = $this->conn->prepare($query);
+    public function updateUser($id, $nom, $prenom, $email, $password, $role, $departement_id, $categorie_id) {
+        $stmt = $this->pdo->prepare("UPDATE users SET nom = :nom, prenom = :prenom, email = :email, password = :password, role = :role, departement_id = :departement_id, categorie_id = :categorie_id WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':nom', $nom);
+        $stmt->bindParam(':prenom', $prenom);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', password_hash($password, PASSWORD_BCRYPT));
+        $stmt->bindParam(':role', $role);
+        $stmt->bindParam(':departement_id', $departement_id);
+        $stmt->bindParam(':categorie_id', $categorie_id);
+        return $stmt->execute();
+    }
+
+    public function deleteUser($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
+    }
+
+    public function authenticate($email, $password) {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = :email");
         $stmt->bindParam(':email', $email);
         $stmt->execute();
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
+        }
+        return false;
     }
 }

@@ -1,17 +1,20 @@
 <?php
 session_start();
-require_once '../../middleware/RoleMiddleware.php';
 require_once '../../Controllers/UserController.php';
+require_once '../../middleware/RoleMiddleware.php';
 
-// Check if the user is an employee
+$userController = new UserController();
 RoleMiddleware::check(['employee']);
-
-$controller = new UserController();
-$user = $controller->readOne($_SESSION['user_id']);
+$user = $userController->getUserById($_SESSION['user_id']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $controller->update($_SESSION['user_id']);
-    header('Location: view_personal_info.php');
+    $nom = $_POST['nom'];
+    $prenom = $_POST['prenom'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $userController->updateUser($_SESSION['user_id'], $nom, $prenom, $email, $password);
+    header('Location: employee_dashboard.php');
     exit();
 }
 ?>
@@ -22,27 +25,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Update Personal Information</title>
-    <link rel="stylesheet" href="styles.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Update Personal Information</h1>
-        <?php if ($user): ?>
-            <form action="update_personal_info.php" method="POST">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($user['name']); ?>" required><br><br>
+    <div class="container mt-5">
+        <h1 class="mb-4">Update Personal Information</h1>
+        <form action="update_personal_info.php" method="POST">
+            <div class="form-group">
+                <label for="nom">Nom:</label>
+                <input type="text" id="nom" name="nom" class="form-control" value="<?php echo $user['nom']; ?>" required>
+            </div>
 
+            <div class="form-group">
+                <label for="prenom">Prenom:</label>
+                <input type="text" id="prenom" name="prenom" class="form-control" value="<?php echo $user['prenom']; ?>" required>
+            </div>
+
+            <div class="form-group">
                 <label for="email">Email:</label>
-                <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($user['email']); ?>" required><br><br>
+                <input type="email" id="email" name="email" class="form-control" value="<?php echo $user['email']; ?>" required>
+            </div>
 
-                <input type="submit" value="Update Information" class="button">
-            </form>
-        <?php else: ?>
-            <p>User not found.</p>
-        <?php endif; ?>
-        <a href="employee_dashboard.php" class="button">Back to Dashboard</a>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" class="form-control" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Update Information</button>
+        </form>
     </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 
 </html>

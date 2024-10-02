@@ -1,37 +1,43 @@
 <?php
-class Category
-{
-    private $conn;
-    private $table_name = "categories";
 
-    public $id;
-    public $name;
+class Category {
+    private $pdo;
 
-    public function __construct($db)
-    {
-        $this->conn = $db;
+    public function __construct($pdo) {
+        $this->pdo = $pdo;
     }
 
-    public function readAll()
-    {
-        $query = "SELECT * FROM " . $this->table_name;
-        $stmt = $this->conn->prepare($query);
+    public function getAllCategories() {
+        $stmt = $this->pdo->prepare("SELECT * FROM categories");
         $stmt->execute();
-        return $stmt;
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function create()
-    {
-        $query = "INSERT INTO " . $this->table_name . " SET name=:name";
-        $stmt = $this->conn->prepare($query);
+    public function getCategoryById($id) {
+        $stmt = $this->pdo->prepare("SELECT * FROM categories WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
-        $this->name = htmlspecialchars(strip_tags($this->name));
+    public function createCategory($nom, $departement_id) {
+        $stmt = $this->pdo->prepare("INSERT INTO categories (nom, departement_id) VALUES (:nom, :departement_id)");
+        $stmt->bindParam(':nom', $nom);
+        $stmt->bindParam(':departement_id', $departement_id);
+        return $stmt->execute();
+    }
 
-        $stmt->bindParam(":name", $this->name);
+    public function updateCategory($id, $nom, $departement_id) {
+        $stmt = $this->pdo->prepare("UPDATE categories SET nom = :nom, departement_id = :departement_id WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        $stmt->bindParam(':nom', $nom);
+        $stmt->bindParam(':departement_id', $departement_id);
+        return $stmt->execute();
+    }
 
-        if ($stmt->execute()) {
-            return true;
-        }
-        return false;
+    public function deleteCategory($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM categories WHERE id = :id");
+        $stmt->bindParam(':id', $id);
+        return $stmt->execute();
     }
 }
